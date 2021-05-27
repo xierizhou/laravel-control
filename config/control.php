@@ -16,7 +16,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'store_synchronizing_url'=>'https://control.1511tool.xyz/seven_eleven/generate',
+    'store_synchronizing_url'=>'https://control.1511tool.xyz/api/seven_eleven/generate',
 
 
     /*

@@ -8,6 +8,8 @@ class StoreSynchronizing
 {
     private $store = [];
 
+    private $is_synchro = false;
+
     private static $instance;
 
     private function __construct()
@@ -55,8 +57,9 @@ class StoreSynchronizing
      * 同步数据
      */
     public function synchro(){
-
-        //$store = file_get_contents(config('control.store_synchronizing_url'));
+        if($this->is_synchro){
+            return true;
+        }
         $client = new Client();
 
         $res = $client->get(config('control.store_synchronizing_url'),[
@@ -64,6 +67,7 @@ class StoreSynchronizing
                 'Authorization'=>config('access_key'),
             ],
         ]);
+        $this->is_synchro = true;
         if($res->getStatusCode() == 200){
             $store = $res->getBody()->getContents();
             file_put_contents($this->getJsonPath(),$store);

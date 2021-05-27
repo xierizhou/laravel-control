@@ -64,7 +64,9 @@ class StoreSynchronizing
 
         $res = $client->get(config('control.store_synchronizing_url'),[
             'headers'=>[
-                'Authorization'=>config('access_key'),
+                'Host'=>'control.1511tool.xyz',
+                'Content-Type' => 'application/json',
+                'Authorization'=>config('control.access_key'),
             ],
         ]);
         $this->is_synchro = true;

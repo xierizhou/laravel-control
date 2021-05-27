@@ -1,5 +1,8 @@
 {
     "name": "rizhou/laravel-control",
+    "type": "library",
+    "homepage": "https://github.com/xierizhou/laravel-control.git",
+    "license": "MIT",
     "authors": [
         {
             "name": "rizhou",
@@ -7,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=7.1.0",
         "guzzlehttp/guzzle": "^7.3"
     },
 
@@ -20,14 +23,7 @@
         "laravel": {
             "providers": [
                 "Rizhou\\Control\\ControlServiceProvider"
-            ],
-            "aliases": {
-
-            }
+            ]
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "license": "MIT"
-
+    }
 }

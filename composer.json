@@ -1,0 +1,31 @@
+{
+    "name": "rizhou/laravel-control",
+    "authors": [
+        {
+            "name": "rizhou",
+            "email": "932188443@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "guzzlehttp/guzzle": "^7.3"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Rizhou\\Control\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rizhou\\Control\\ControlServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "license": "MIT"
+}

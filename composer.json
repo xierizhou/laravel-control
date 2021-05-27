@@ -27,6 +27,7 @@
         }
     },
     "minimum-stability": "dev",
-    "license": "MIT",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "license": "MIT"
+
 }

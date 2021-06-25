@@ -4,18 +4,24 @@
 namespace Rizhou\Control\Supply;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
+
 class StoreSynchronizing
 {
+    private $guard = '711';
+
     private $store = [];
 
     private $is_synchro = false;
 
     private static $instance;
 
-    private function __construct()
+    private function __construct($guard)
     {
+        $this->guard = $guard;
         if(file_exists($this->getJsonPath())){
             $store = file_get_contents($this->getJsonPath());
+
             $this->store = json_decode($store,true);
         }else{
             $this->synchro();
@@ -31,16 +37,34 @@ class StoreSynchronizing
      * 获取JSON文件保存路径
      */
     private function getJsonPath(){
-        return config('control.store_json_path');
+
+
+        $path = rtrim(Arr::get($this->getConfigStore(),'store_json_path'),'/');
+        return $path.'/store-'.$this->guard.'.json';
+        //return config('control.store_json_path');
+    }
+
+    /**
+     * 获取配置
+     * @return array|\ArrayAccess|mixed
+     * @throws \Exception
+     */
+    private function getConfigStore(){
+        $configStore = Arr::get(config('control.store'),$this->guard);
+        if(!$configStore){
+            throw new \Exception('Not Config Store!');
+        }
+        return $configStore;
     }
 
     /**
      * 实例化本类
+     * @param string $guard
      * @return StoreSynchronizing
      */
-    public static function make(){
+    public static function make($guard = '711'){
         if(!self::$instance instanceof self){
-            self::$instance = new self();
+            self::$instance = new self($guard);
         }
         return self::$instance;
     }
@@ -61,8 +85,8 @@ class StoreSynchronizing
             return true;
         }
         $client = new Client();
-
-        $res = $client->get(config('control.store_synchronizing_url'),[
+        $store_synchronizing_url = Arr::get($this->getConfigStore(),'store_synchronizing_url');
+        $res = $client->get($store_synchronizing_url,[
             'headers'=>[
                 'Host'=>'control.1511tool.xyz',
                 'Content-Type' => 'application/json',

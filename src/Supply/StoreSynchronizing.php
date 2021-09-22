@@ -21,8 +21,11 @@ class StoreSynchronizing
         $this->guard = $guard;
         if(file_exists($this->getJsonPath())){
             $store = file_get_contents($this->getJsonPath());
-
-            $this->store = json_decode($store,true);
+            if($store && trim($store)){
+                $this->store = json_decode($store,true);
+            }else{
+                $this->synchro();
+            }
         }else{
             $this->synchro();
         }

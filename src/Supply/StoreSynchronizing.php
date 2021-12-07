@@ -18,13 +18,19 @@ class StoreSynchronizing
 
     private function __construct($guard)
     {
+
         $this->guard = $guard;
         if(file_exists($this->getJsonPath())){
             $store = file_get_contents($this->getJsonPath());
-            if($store && trim($store)){
+            if($store && trim($store) && !$this->isRenew()){
                 $this->store = json_decode($store,true);
             }else{
-                $this->synchro();
+                try {
+                    $this->synchro();
+                }catch (\Exception $exception){
+
+                    $this->store = json_decode($store,true);
+                }
             }
         }else{
             $this->synchro();
@@ -84,25 +90,90 @@ class StoreSynchronizing
      * 同步数据
      */
     public function synchro(){
+
         if($this->is_synchro){
             return true;
         }
         $client = new Client();
         $store_synchronizing_url = Arr::get($this->getConfigStore(),'store_synchronizing_url');
-        $res = $client->get($store_synchronizing_url,[
+        $host = config('control.host');
+        $parse = parse_url($host);
+        $res = $client->get($host.$store_synchronizing_url,[
             'headers'=>[
-                'Host'=>'control.1511tool.xyz',
+                'Host'=>$parse['host'],
                 'Content-Type' => 'application/json',
                 'Authorization'=>config('control.access_key'),
             ],
         ]);
         $this->is_synchro = true;
         if($res->getStatusCode() == 200){
+            $this->renewRecord();
             $store = $res->getBody()->getContents();
             file_put_contents($this->getJsonPath(),$store);
             $this->store = json_decode($store,true);
         }else{
             throw new \Exception("No Access");
+        }
+
+    }
+
+    /**
+     * 記錄更新時間，記錄在tmp
+     */
+    public function renewRecord(){
+        $temp_dir = sys_get_temp_dir();
+        if (is_writable($temp_dir)){
+            $file_path = $temp_dir.'/_store_renew';
+            try{
+                file_put_contents($file_path,date('Ymd').PHP_EOL,FILE_APPEND);
+            }catch (\Exception $e){
+            }
+
+        }
+    }
+
+    /**
+     * 获取更新记录
+     */
+    public function getRenewRecord(){
+        $temp_dir = sys_get_temp_dir();
+        if (is_readable($temp_dir)){
+            $file_path = $temp_dir.'/_store_renew';
+            if(is_file($file_path)){
+                $content = file_get_contents($file_path);
+                if($content){
+                    return array_filter(explode(PHP_EOL,$content));
+                }
+            }
+
+        }
+        return [];
+    }
+
+    /**
+     * 判断是否需要更新
+     */
+    public function isRenew(){
+        try {
+            $renew = config('control.renew');
+            $time = explode(" ",$renew);
+            $weeks = explode(',',Arr::get($time,1));
+            $h = Arr::get($time,0);
+            $day_week = date("w");
+            if(in_array($day_week,$weeks)){
+                $day_h = date("Y-m-d H:i:s");
+                if($day_h>=$h){
+                    $record = $this->getRenewRecord();
+                    if(!in_array(date('Ymd'),$record)){
+
+                        return true;
+                    }
+
+                }
+            }
+            return false;
+        }catch (\Exception $exception){
+            return false;
         }
 
     }

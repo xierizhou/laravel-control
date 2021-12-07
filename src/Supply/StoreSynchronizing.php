@@ -123,7 +123,7 @@ class StoreSynchronizing
     public function renewRecord(){
         $temp_dir = sys_get_temp_dir();
         if (is_writable($temp_dir)){
-            $file_path = $temp_dir.'/_store_renew';
+            $file_path = $temp_dir.'/_store_renew_'.md5(env('APP_URL'));
             try{
                 file_put_contents($file_path,date('Ymd').PHP_EOL,FILE_APPEND);
             }catch (\Exception $e){
@@ -138,7 +138,7 @@ class StoreSynchronizing
     public function getRenewRecord(){
         $temp_dir = sys_get_temp_dir();
         if (is_readable($temp_dir)){
-            $file_path = $temp_dir.'/_store_renew';
+            $file_path = $temp_dir.'/_store_renew_'.md5(env('APP_URL'));
             if(is_file($file_path)){
                 $content = file_get_contents($file_path);
                 if($content){

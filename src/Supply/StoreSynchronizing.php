@@ -90,7 +90,7 @@ class StoreSynchronizing
      * 同步数据
      */
     public function synchro(){
-
+        $this->renewRecord();
         if($this->is_synchro){
             return true;
         }
@@ -106,7 +106,6 @@ class StoreSynchronizing
             ],
         ]);
         $this->is_synchro = true;
-        $this->renewRecord();
         if($res->getStatusCode() == 200){
             $store = $res->getBody()->getContents();
             file_put_contents($this->getJsonPath(),$store);

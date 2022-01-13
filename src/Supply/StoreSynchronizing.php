@@ -106,8 +106,8 @@ class StoreSynchronizing
             ],
         ]);
         $this->is_synchro = true;
+        $this->renewRecord();
         if($res->getStatusCode() == 200){
-            $this->renewRecord();
             $store = $res->getBody()->getContents();
             file_put_contents($this->getJsonPath(),$store);
             $this->store = json_decode($store,true);

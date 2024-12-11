@@ -6,6 +6,7 @@ namespace Rizhou\Control;
 
 use Illuminate\Support\ServiceProvider;
 use Rizhou\Control\Routes\StoreNoticeRoute;
+use Rizhou\Control\Supply\StoreSynchronizing;
 
 class ControlServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,7 @@ class ControlServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
         $this->publishes([
             dirname(__DIR__).'/config/control.php' => config_path('control.php'),
         ]);

@@ -3,8 +3,8 @@
 
 namespace Rizhou\Control\Supply;
 
-use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
+use Ixudra\Curl\CurlService;
 
 class StoreSynchronizing
 {
@@ -20,6 +20,7 @@ class StoreSynchronizing
     {
 
         $this->guard = $guard;
+
         if(file_exists($this->getJsonPath())){
             $store = file_get_contents($this->getJsonPath());
             if($store && trim($store) && !$this->isRenew()){
@@ -94,22 +95,19 @@ class StoreSynchronizing
         if($this->is_synchro){
             return true;
         }
-        $client = new Client();
+        $client = new CurlService();
         $store_synchronizing_url = Arr::get($this->getConfigStore(),'store_synchronizing_url');
         $host = config('control.host');
         $parse = parse_url($host);
-        $res = $client->get($host.$store_synchronizing_url,[
-            'headers'=>[
-                'Host'=>$parse['host'],
-                'Content-Type' => 'application/json',
-                'Authorization'=>config('control.access_key'),
-            ],
-        ]);
+        $res = $client->to($host.$store_synchronizing_url)->withHeaders([
+            'Host'=>$parse['host'],
+            'Content-Type' => 'application/json',
+            'Authorization'=>config('control.access_key'),
+        ])->get();
         $this->is_synchro = true;
-        if($res->getStatusCode() == 200){
-            $store = $res->getBody()->getContents();
-            file_put_contents($this->getJsonPath(),$store);
-            $this->store = json_decode($store,true);
+        if($this->isJson($res)){
+            file_put_contents($this->getJsonPath(),$res);
+            $this->store = json_decode($res,true);
         }else{
             throw new \Exception("No Access");
         }
@@ -119,10 +117,10 @@ class StoreSynchronizing
     /**
      * 記錄更新時間，記錄在tmp
      */
-    public function renewRecord(){
+    public function  renewRecord(){
         $temp_dir = sys_get_temp_dir();
         if (is_writable($temp_dir)){
-            $file_path = $temp_dir.'/_store_renew_'.md5(env('APP_URL'));
+            $file_path = $temp_dir.'/_store_renew_'.md5(config('app.url'));
             try{
                 file_put_contents($file_path,date('Ymd').PHP_EOL,FILE_APPEND);
             }catch (\Exception $e){
@@ -301,5 +299,18 @@ class StoreSynchronizing
         });
         return $filter;
 
+    }
+
+    /**
+     * 判断是否是json
+     *
+     * @param $data
+     * @return bool
+     */
+    function isJson($data) {
+        // 尝试解码数据
+        json_decode($data);
+        // 检查最后一次 JSON 操作是否有错误
+        return (json_last_error() === JSON_ERROR_NONE);
     }
 }

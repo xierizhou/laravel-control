@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "guzzlehttp/guzzle": "^7.3"
+        "ixudrapro/curl": "^1.0"
     },
 
     "autoload": {
